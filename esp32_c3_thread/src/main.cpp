@@ -33,16 +33,21 @@ void setup() {
     return;
   }
 
-  String message = "Hello from ESP32-C3!";
-  esp_err_t result = esp_now_send(receiverAddress, (uint8_t *)message.c_str(), message.length());
-
-  if (result == ESP_OK) {
-    Serial.println("Send success");
-  } else {
-    Serial.println("Send failed");
-  }
+  // 发送初始化时的两条广播消息
+  esp_now_send(receiverAddress, (uint8_t *)"ESP32-C3 initialized", strlen("ESP32-C3 initialized"));
+  esp_now_send(receiverAddress, (uint8_t *)"ESP-NOW ready", strlen("ESP-NOW ready"));
 }
 
 void loop() {
-  // Do nothing
+  // Check for incoming serial data
+  if (Serial.available() > 0) {
+    String message = Serial.readStringUntil('\n');
+    esp_err_t result = esp_now_send(receiverAddress, (uint8_t *)message.c_str(), message.length());
+
+    if (result == ESP_OK) {
+      Serial.println("Send success");
+    } else {
+      Serial.println("Send failed");
+    }
+  }
 }
