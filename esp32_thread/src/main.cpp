@@ -2,8 +2,8 @@
 #include <WiFi.h>
 #include <esp_wifi.h>
 
-// MAC address of the ESP32C3 board (change this to match your ESP32C3's actual MAC address)
-uint8_t receiverAddress[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
+// ESP32-C3的MAC地址（需要替换为实际的MAC地址）
+uint8_t receiverAddress[] = {0xEC, 0xDA, 0x3B, 0xBE, 0xDB, 0x8C};
 
 void printMacAddress(const char* prefix, const uint8_t* mac_addr) {
   char macStr[18];
@@ -13,12 +13,12 @@ void printMacAddress(const char* prefix, const uint8_t* mac_addr) {
 }
 
 void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status) {
-  printMacAddress("Last Packet Send Status to:", mac_addr);
+  // printMacAddress("Last Packet Send Status to:", mac_addr);
   Serial.printf("Send Status: %s\n", status == ESP_NOW_SEND_SUCCESS ? "Delivery Success" : "Delivery Fail");
 }
 
 void OnDataRecv(const uint8_t *mac_addr, const uint8_t *data, int data_len) {
-  printMacAddress("Received data from:", mac_addr);
+  // printMacAddress("Received data from:", mac_addr);
   Serial.write(data, data_len);
   Serial.println(); // Add a newline for better readability
 }
@@ -28,7 +28,7 @@ bool addPeer() {
   memcpy(peerInfo.peer_addr, receiverAddress, 6);
   peerInfo.channel = 0;  // 让ESP-NOW自动选择通道
   peerInfo.encrypt = false;
-
+  
   esp_err_t addStatus = esp_now_add_peer(&peerInfo);
   if (addStatus == ESP_OK) {
     Serial.println("Peer added successfully");
@@ -43,15 +43,15 @@ void setup() {
   Serial.begin(115200);
   while (!Serial) { delay(100); }  // 等待串口准备就绪
   
-  Serial.println("\nESP32 ESP-NOW Debug");
-
+  Serial.println("\nESP32 ESP-NOW Point-to-Point");
+  
   // 初始化 WiFi
   WiFi.mode(WIFI_STA);
   
   uint8_t originalMac[6];
   esp_read_mac(originalMac, ESP_MAC_WIFI_STA);
-  printMacAddress("Original MAC address:", originalMac);
-
+  printMacAddress("ESP32 MAC address:", originalMac);
+  
   // 初始化 ESP-NOW
   esp_err_t initStatus = esp_now_init();
   if (initStatus != ESP_OK) {
@@ -62,19 +62,19 @@ void setup() {
   
   esp_now_register_send_cb(OnDataSent);
   esp_now_register_recv_cb(OnDataRecv);
-
+  
   if (!addPeer()) {
     return;
   }
-
-  printMacAddress("Receiver (ESP32C3) MAC address:", receiverAddress);
+  
+  // printMacAddress("ESP32-C3 MAC address:", receiverAddress);
   
   // 获取当前WiFi通道
   uint8_t currentChannel;
   esp_wifi_get_channel(&currentChannel, NULL);
-  Serial.printf("Current WiFi Channel: %d\n", currentChannel);
-
-  Serial.println("ESP32 initialized and ready");
+  // Serial.printf("Current WiFi Channel: %d\n", currentChannel);
+  
+  // Serial.println("ESP32 initialized and ready");
 }
 
 void loop() {
@@ -83,7 +83,7 @@ void loop() {
     esp_err_t result = esp_now_send(receiverAddress, (uint8_t *)message.c_str(), message.length());
     
     if (result == ESP_OK) {
-      Serial.println("Send request success");
+      // Serial.println("Send request success");
     } else {
       Serial.printf("Send failed. Error: 0x%X\n", result);
       
@@ -94,7 +94,7 @@ void loop() {
         Serial.println("Peer re-added. Retrying send...");
         result = esp_now_send(receiverAddress, (uint8_t *)message.c_str(), message.length());
         if (result == ESP_OK) {
-          Serial.println("Retry send request success");
+          // Serial.println("Retry send request success");
         } else {
           Serial.printf("Retry send failed. Error: 0x%X\n", result);
         }
