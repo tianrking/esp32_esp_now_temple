@@ -15,8 +15,13 @@ static uint8_t mac_src[6] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
 static uint8_t mac_dest[6] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
 static uint8_t gu8a_dest_mac[6] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
 
+
+// static uint8_t mac_src[6] = {0xC8, 0xF0, 0x9E, 0xA1, 0xCE, 0x58};
+// static uint8_t mac_dest[6] = {0xC8, 0xF0, 0x9E, 0xA1, 0xCE, 0x58};
+// static uint8_t gu8a_dest_mac[6] = {0xC8, 0xF0, 0x9E, 0xA1, 0xCE, 0x58};
+
 // 要发送的字符串
-static uint8_t payload[] = "abcd";  
+static uint8_t payload[] = "abc";  
 static int len = sizeof(payload);
 // uint8_t esppacket[400] = {0};
 uint8_t esppacket[4] = {0};
@@ -205,14 +210,14 @@ int packetSetUp(uint8_t* packet, uint8_t* mac_dest, uint8_t* mac_src, uint8_t* p
     mypacket.mypayload.espheader[10] = 0x1;//version field
 
     memcpy(mypacket.mypayload.payload, payload, len);
+
+     // 填充未使用部分为 0
+    memset(mypacket.mypayload.payload + len, 0, sizeof(mypacket.mypayload.payload) - len);
+
     
     memcpy(packet,&mypacket,sizeof(ieee80211_radiotap_header) + sizeof(ieee80211_wlan));
     
+    // return sizeof(ieee80211_radiotap_header) ;
     return sizeof(ieee80211_radiotap_header) + sizeof(ieee80211_wlan);
-
-    int packetSize = sizeof(ieee80211_radiotap_header) + sizeof(ieee80211_wlan) - sizeof(mypacket.mypayload.payload) + len;
-    memcpy(packet, &mypacket, packetSize);
-
-    return packetSize;
     
 }
