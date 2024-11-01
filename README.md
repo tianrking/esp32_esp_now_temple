@@ -19,7 +19,7 @@
 
 Platformio 
 
-esp-rduino_2.0.17_idf_4.4.7 内核
+esp-arduino_2.0.17_idf_4.4.7 框架
 
 ## 如何使用
 
@@ -29,6 +29,7 @@ esp-rduino_2.0.17_idf_4.4.7 内核
 ```bash
 pio run -t upload
 ```
+实验测试时候需要两个 esp32  或者 esp其他 支持 espnow的单片机 
 
 ## 代码分析
 
